@@ -14,6 +14,7 @@
   "ignorePatterns": ["dist/", "node_modules/", "public/", "tsconfig.json"],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/consistent-type-imports": "off"
+    "@typescript-eslint/consistent-type-imports": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off"
   }
 }

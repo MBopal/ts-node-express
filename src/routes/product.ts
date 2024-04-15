@@ -1,40 +1,8 @@
-import type { NextFunction, Request, Response } from 'express'
 import { Router } from 'express'
-import { logger } from '../utils/logger'
-import { ProductInterface, createProductValidation } from '../validations/product.validation'
+import { createProduct, getProduct } from '../controllers/product.controller'
 
 export const ProductRouter: Router = Router()
 
-ProductRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
-  logger.info('Success get product data')
-  res.status(200).json({
-    status: true,
-    statusCode: 200,
-    data: [
-      {
-        name: 'Sepatu Sport',
-        price: 500000
-      }
-    ]
-  })
-})
-
-ProductRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
-  const createRequest = createProductValidation(req.body as ProductInterface)
-  if (!createRequest.success) {
-    logger.error(`ERR: product - create = ${createRequest.error.errors[0].message}`)
-    return res.status(400).json({
-      status: false,
-      statusCode: 400,
-      message: createRequest.error.errors[0].message
-    })
-  }
-
-  logger.info('Success create new product')
-  res.status(200).json({
-    status: true,
-    statusCode: 200,
-    message: 'Success create new product',
-    data: createRequest.data
-  })
-})
+ProductRouter.get('/', getProduct)
+ProductRouter.get('/:name', getProduct)
+ProductRouter.post('/', createProduct)
