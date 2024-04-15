@@ -1,16 +1,13 @@
-import type { Application, Request, Response, NextFunction } from 'express'
+import type { Application } from 'express'
 import express from 'express'
+import { routes } from './routes'
 
 const app: Application = express()
 const port: number = 3000
 
 // app.use(express.json());
 
-app.use('/health', (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).json({
-    status: 200
-  })
-})
+routes(app)
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
