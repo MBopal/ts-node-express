@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { Router } from 'express'
 import { logger } from '../utils/logger'
+import { ProductInterface, createProductValidation } from '../validations/product.validation'
 
 export const ProductRouter: Router = Router()
 
@@ -19,10 +20,21 @@ ProductRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
 })
 
 ProductRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
+  const createRequest = createProductValidation(req.body as ProductInterface)
+  if (!createRequest.success) {
+    logger.error(`ERR: product - create = ${createRequest.error.errors[0].message}`)
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      message: createRequest.error.errors[0].message
+    })
+  }
+
   logger.info('Success create new product')
   res.status(200).json({
     status: true,
     statusCode: 200,
-    data: req.body
+    message: 'Success create new product',
+    data: createRequest.data
   })
 })
