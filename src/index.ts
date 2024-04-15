@@ -4,6 +4,8 @@ import express from 'express'
 import { routes } from './routes'
 import { logger } from './utils/logger'
 
+import './utils/db'
+
 const app: Application = express()
 const port: number = 3000
 

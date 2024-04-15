@@ -1,6 +1,14 @@
 import type { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import { ProductInterface, createProductValidation } from '../validations/product.validation'
+import { getProductFromDB } from '../services/product.service'
+
+interface ProductType {
+  productId: string
+  name: string
+  price: number
+  size: string
+}
 
 export const createProduct = (req: Request, res: Response) => {
   const createRequest = createProductValidation(req.body as ProductInterface)
@@ -23,15 +31,12 @@ export const createProduct = (req: Request, res: Response) => {
 }
 
 export const getProduct = (req: Request, res: Response) => {
-  const products = [
-    { name: 'Sepatu', price: 200000 },
-    { name: 'Kaos', price: 100000 }
-  ]
+  const products: any = getProductFromDB()
 
   const { name } = req.params
 
   const filteredProducts = name
-    ? products.filter((product) => product.name.toLowerCase() === name.trim().toLowerCase())
+    ? products.filter((product: ProductType) => product.name.toLowerCase() === name.trim().toLowerCase())
     : undefined
 
   if (filteredProducts?.length === 0) {
