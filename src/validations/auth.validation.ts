@@ -21,3 +21,11 @@ export const createSessionValidation = (payload: UserType) => {
 
   return schema.safeParse(payload)
 }
+
+export const refreshSessionValidation = (payload: UserType) => {
+  const schema: ZodType = z.object({
+    refreshToken: z.string({ required_error: 'email is required' })
+  })
+
+  return schema.safeParse(payload)
+}
