@@ -1,7 +1,13 @@
 import type { Request, Response } from 'express'
 import { logger } from '../utils/logger'
 import { createProductValidation, updateProductValidation } from '../validations/product.validation'
-import { addProductToDB, getProductById, getProductFromDB, updateProductById } from '../services/product.service'
+import {
+  addProductToDB,
+  deleteProductById,
+  getProductById,
+  getProductFromDB,
+  updateProductById
+} from '../services/product.service'
 import { v4 as uuidv4 } from 'uuid'
 import ProductType from '../types/product.type'
 
@@ -79,12 +85,58 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 
   try {
-    await updateProductById(id, updateRequest.data as ProductType)
+    const result = await updateProductById(id, updateRequest.data as ProductType)
+
+    if (!result) {
+      return res.status(404).json({
+        status: false,
+        statusCode: 404,
+        message: 'Product not found'
+      })
+    }
+
     logger.info('Success update product')
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       statusCode: 200,
       message: 'Success update product'
     })
-  } catch (err) {}
+  } catch (err) {
+    logger.error('ERR: product - update = ', err)
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      message: err
+    })
+  }
+}
+
+export const deleteProduct = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    const result = await deleteProductById(id)
+
+    if (!result) {
+      return res.status(404).json({
+        status: false,
+        statusCode: 404,
+        message: 'Product not found'
+      })
+    }
+
+    logger.info('Success delete product')
+    return res.status(200).json({
+      status: true,
+      statusCode: 200,
+      message: 'Success delete product'
+    })
+  } catch (err) {
+    logger.error('ERR: product - delete = ', err)
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      message: err
+    })
+  }
 }

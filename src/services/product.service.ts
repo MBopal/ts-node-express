@@ -31,3 +31,7 @@ export const getProductById = async (id: string) => {
 export const updateProductById = async (id: string, payload: ProductType) => {
   return await productModel.findOneAndUpdate({ product_id: id }, payload)
 }
+
+export const deleteProductById = async (id: string) => {
+  return await productModel.findOneAndDelete({ product_id: id })
+}
