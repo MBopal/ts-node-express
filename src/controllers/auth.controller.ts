@@ -44,14 +44,12 @@ export const createSession = async (req: Request, res: Response) => {
 
     const refreshToken = signJWT({ ...user })
 
-    return res
-      .status(200)
-      .json({
-        status: true,
-        statusCode: 200,
-        message: 'User logged in successfully',
-        data: { accessToken, refreshToken }
-      })
+    return res.status(200).json({
+      status: true,
+      statusCode: 200,
+      message: 'User logged in successfully',
+      data: { accessToken, refreshToken }
+    })
   } catch (err: any) {
     logger.error(`ERR: auth - session = ${err}`)
     return res.status(404).json({ status: false, statusCode: 404, message: 'User not found' })
