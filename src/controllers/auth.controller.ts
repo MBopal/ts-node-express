@@ -1,17 +1,18 @@
 import { Request, Response } from 'express'
-import { createUserValidation } from '../validations/auth.validation'
+import { createSessionValidation, createUserValidation } from '../validations/auth.validation'
 import { v4 as uuidv4 } from 'uuid'
 import { logger } from '../utils/logger'
 import UserType from '../types/user.type'
-import { hash } from '../utils/hash'
-import { createUser } from '../services/auth.service'
+import { checkPassword, hash } from '../utils/hash'
+import { createUser, findUserByEmail } from '../services/auth.service'
+import { signJWT } from '../utils/jwt'
 
 export const registerUser = async (req: Request, res: Response) => {
   req.body.user_id = uuidv4()
   const registerRequest = createUserValidation(req.body as UserType)
   if (!registerRequest.success) {
     logger.error(`ERR: auth - register = ${registerRequest.error.errors[0].message}`)
-    return res.status(400).json(registerRequest.error.errors[0].message)
+    return res.status(400).json({ status: false, statusCode: 400, message: registerRequest.error.errors[0].message })
   }
 
   try {
@@ -22,5 +23,30 @@ export const registerUser = async (req: Request, res: Response) => {
   } catch (err: any) {
     logger.error(`ERR: auth - register = ${err}`)
     return res.status(422).json({ status: false, statusCode: 422, message: err.errmsg })
+  }
+}
+
+export const createSession = async (req: Request, res: Response) => {
+  const sessionRequest = createSessionValidation(req.body as UserType)
+
+  if (!sessionRequest.success) {
+    logger.error(`ERR: auth - session = ${sessionRequest.error.errors[0].message}`)
+    return res.status(400).json({ status: false, statusCode: 400, message: sessionRequest.error.errors[0].message })
+  }
+
+  try {
+    const user: any = await findUserByEmail(sessionRequest.data.email as string)
+    const isValid = checkPassword(sessionRequest.data.password as string, user.password as string)
+
+    if (!isValid) return res.status(401).json({ status: false, statusCode: 401, message: 'Invalid credentials' })
+
+    const accessToken = signJWT({ ...user })
+
+    return res
+      .status(200)
+      .json({ status: true, statusCode: 200, message: 'User logged in successfully', data: { accessToken } })
+  } catch (err: any) {
+    logger.error(`ERR: auth - session = ${err}`)
+    return res.status(404).json({ status: false, statusCode: 404, message: 'User not found' })
   }
 }
